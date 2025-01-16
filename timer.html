@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speaking Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .timer {
+            font-size: 3rem;
+            margin: 20px;
+        }
+        .chips-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .chip {
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+        }
+        .chip.disabled {
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Speaking Timer</h1>
+    <p>Use your poker chips wisely to manage your speaking time in meetings.</p>
+    <div class="timer" id="timer">0:00</div>
+
+    <div class="chips-container">
+        <img src="2-min-chip.png" alt="2 mins" class="chip" id="chip-2" onclick="useChip('chip-2', 2)">
+        <img src="1-min-chip.png" alt="1 min" class="chip" id="chip-1-1" onclick="useChip('chip-1-1', 1)">
+        <img src="1-min-chip.png" alt="1 min" class="chip" id="chip-1-2" onclick="useChip('chip-1-2', 1)">
+        <img src="1-min-chip.png" alt="1 min" class="chip" id="chip-1-3" onclick="useChip('chip-1-3', 1)">
+        <img src="30-sec-chip.png" alt="30 secs" class="chip" id="chip-0.5-1" onclick="useChip('chip-0.5-1', 0.5)">
+        <img src="30-sec-chip.png" alt="30 secs" class="chip" id="chip-0.5-2" onclick="useChip('chip-0.5-2', 0.5)">
+    </div>
+
+    <div class="controls">
+        <button class="button" id="pause-button" onclick="togglePause()">Pause</button>
+    </div>
+
+    <script>
+        let remainingTime = 0; // in seconds
+        let timerInterval;
+        let isPaused = false;
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        function useChip(chipId, minutes) {
+            if (isPaused) return;
+
+            const chipElement = document.getElementById(chipId);
+
+            if (!chipElement || chipElement.classList.contains('disabled')) {
+                console.error('Chip element is invalid or already used:', chipId);
+                return;
+            }
+
+            chipElement.classList.add('disabled');
+            chipElement.onclick = null;
+
+            remainingTime += minutes * 60;
+            updateTimerDisplay();
+
+            if (!timerInterval) {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (!isPaused && remainingTime > 0) {
+                    remainingTime--;
+                    updateTimerDisplay();
+                } else if (remainingTime === 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    alert('Time is up!');
+                }
+            }, 1000);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('pause-button').textContent = isPaused ? 'Resume' : 'Pause';
+        }
+
+        // Initialize the display
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
